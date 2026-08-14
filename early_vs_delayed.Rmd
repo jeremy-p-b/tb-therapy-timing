@@ -1,0 +1,182 @@
+---
+title: "Empiric vs. delayed TB treatment"
+format: pdf
+editor: visual
+bibliography: references.bib
+csl: nlm-citation-sequence-superscript.csl
+---
+
+# Immediate vs delayed initiation of anti-TB therapy among patients hospitalised with HIV and suspected TB
+
+## Background
+
+In patients hospitalised with HIV and suspected TB there is uncertainty around the benefits of early empiric TB treatment. The aim of this analysis was to estimate the effect of immediate vs. delayed initiation of anti-TB therapy.
+
+## Methods
+
+### Data
+
+Data were analysed from a prospective cohort of adults with a new suspected diagnosis of HIV-associated tuberculosis recruited between 2014 and 2016 in South Africa. Further details of this cohort are provided in Schutz et al. PLoS medicine. 2019 Jul 5;16(7):e1002840.[@schutz2019clinical]
+
+### Inclusion criteria
+
+In addition to the inclusion criteria that were applied for recruitment, additional inclusion criteria were required for this specific analysis. The analysis was restricted to individuals with microbiologically confirmed TB. Sputum, urine, and blood samples collected at enrollment were used to confirm TB status. Patients on TB medication at enrollment were excluded. Furthermore, patients who died on the enrollment day were excluded.
+
+### Treatment strategies
+
+The treatment strategies under comparison were immediate initiation of anti-TB therapy on day 1 vs. delayed initiation within a grace period from 2 to 6 days following enrollment. Individuals were censored when non-adherent to the specified strategy (i.e., for the treatment strategy of delayed initiation at day 1 if treatment initiated on day 1 and at day 6 if treatment not initiated by that date).
+
+### Outcome
+
+The outcome was all-cause death.
+
+### Covariates
+
+Potential confounders were identified and adjusted for in analyses. These were ascertained from measurements made and samples taken at enrollment. Covariates included as potential confounders were age, sex, log creatinine, log CD4 count, log haemoglobin, impaired consciousness, hypoxia, rifampicin resistance, and pathogen load estimated using a graded response model.
+
+HIV viral load was not adjusted for in analyses but was included in descriptive statistics.
+
+### Follow-up
+
+Follow-up was from enrollment until the earliest of death, loss to follow-up (LTFU), and 84 days following enrollment.
+
+### Causal contrasts
+
+The causal contrast was the observational analogue of the per-protocol effect.
+
+### Statistical methods
+
+Descriptive statistics were estimated for each treatment strategy. These included proportions for categorical covariates and medians with interquartile ranges for continuous covariates. Absolute standardised mean differences were used to examine differences between treatment strategies in covariate distributions.
+
+Time was discretized in analyses into days. Risks of death at 84 days were estimated for each treatment strategy using weighted Kaplan-Meier estimators and compared using risk ratios and risk differences.[@hernan2018estimate] Nonparametric bootstrapping with 1,000 resamples was used to calculate 95% confidence intervals by the percentile method.
+
+Inverse probability weighting was used to account for censoring due to LTFU and for possible confounding due to common causes of delayed initiation and outcome. Censoring probabilities due to LTFU were estimated nonparametrically for each day among patients alive on that day using means estimated within levels of treatment initiated (yes/no), and for those who had initiated within levels of day of treatment initiation. Probabilities of immediate treatment initiation in day 1 were estimated using a logistic regression model. Hazards of treatment initiation for days 2-6 were estimated among patients alive and not LTFU using a pooled logistic regression model adjusted for baseline covariates. Age was modelled in these logistic regression models using a restricted cubic spline. Day was modelled in the pooled logistic regression model using a cubic polynomial. Weights were truncated at the 99th percentile.
+
+### Sensitivity analyses
+
+In sensitivity analyses, to assess the robustness of results to extreme weights, weights were not truncated or truncated at the 95th or 90th percentile.
+
+To assess the robustness of results to inclusion of individuals with antibiotic resistant TB, in a sensitivity analysis individuals with rifampicin resistance were excluded.
+
+Different weights can be used for grace period treatment strategies to imply different distributions of treatment during the grace period. The primary analysis used a natural grace period treatment strategy. As a sensitivity analysis, we estimated the effect of delayed initiation under a uniform distribution of treatment initiation within the grace period.[@cain2010start; @wanis2024grace]
+
+### Secondary analysis
+
+First, as a secondary analysis, risks were estimated within categories of estimated pathogen load. Pathogen load was categorised based on a graded response model into high (\>0) and low (\<= 0).
+
+Second, a naive approach was estimated, vulnerable to immortal time bias, where the analysis was restricted to individuals who initiated treatment within 6 days. To initiate treatment after enrollment (e.g., at six days) an individual has to survive until treatment receipt. Hence, requiring receipt of treatment can lead to bias in which estimates are biased towards reduced mortality with delayed treatment initiation.
+
+Third, risks were estimated comparing a treatment strategy of immediate initiation vs. no immediate initiation (i.e., with no requirement for subsequent initiation within a grace period).
+
+## Preliminary descriptive statistics
+
+### Study population
+
+From a total of 482 patients with confirmed TB, 64 exclusions were made due to use of anti-TB therapy at baseline or due to death on the day of enrollment.
+
+```{r}
+#| label: tbl-exclusions
+#| tbl-cap: "Exclusions"
+descriptive_outputs$inclusions %>% tt()
+```
+
+The number lost to follow-up was `r descriptive_outputs$number_ltfu`
+
+### Time to anti-TB therapy initiation
+
+Of the 418 included individuals, 397 initiated anti-TB therapy before death, loss to follow-up, or the end of follow-up. Most individuals initiated anti-TB therapy within the first six days following enrollment.
+
+```{r}
+#| label: fig-estimates
+#| fig-cap: "Histogram of day of treatment initiation"
+#| fig-width: 7
+#| fig-height: 5
+descriptive_outputs$graph_initiation + ylab("Count")
+```
+
+### Baseline characteristics
+
+Of 418 included individuals, 227 initiated anti-TB therapy on day 1 and 191 did not. Those who initiated immediately had on average lower haemoglobin levels and higher bacterial loads.
+
+```{r}
+#| label: tbl-characteristics
+#| tbl-cap: "Baseline characteristics by treatment initiation"
+descriptive_outputs$baseline_characteristics
+```
+
+### Crude event counts
+
+```{r}
+#| label: tbl-counts
+#| tbl-cap: "Crude death counts by treatment initiation"
+descriptive_outputs$crude_counts %>% tt()
+```
+
+### Overall survival
+
+```{r}
+#| label: fig-km_overall
+#| fig-cap: "Kaplan-Meier survival curve"
+#| fig-width: 7
+#| fig-height: 5
+descriptive_outputs$survival_plot
+```
+
+## Primary analysis
+
+Of 418 included individuals, 227 initiated anti-TB therapy on day 1 and 189 did not. Individuals who had not initiated by day 6 were censored due to non-adherence to either treatment strategy.
+
+### Weighted characteristics
+
+After weighting, absolute standardised mean differences between those who followed a treatment strategy of immediate initiation relative to delayed initiation between 2 and 6 days following enrollment were small, and were all less than 0.1
+
+```{r}
+#| label: tbl-weighted-results
+#| tbl-cap: "Weighted characteristics of individuals adhering to treatment strategies"
+immediate_vs_two_to_six_outputs$weighted_table 
+```
+
+The maximum of the truncated weights was less than 5.
+
+```{r}
+#| label: fig-wghts
+#| fig-cap: "Histogram of weights at day 84"
+#| fig-width: 7
+#| fig-height: 5
+immediate_vs_two_to_six_outputs$plot_weights
+```
+
+### Risk of death with immediate initiation vs. delayed initation within 2-6 days
+
+The estimated risk of death by day 84 was 27.4% with delayed initiation and 17.9% with immediate initiation (RR 0.65, 95% CI 0.45, 0.95).
+
+```{r}
+#| label: tbl-primary-results
+#| tbl-cap: "Estimated risks of death by day 84 with immediate versus delayed anti-TB therapyinitiation"
+immediate_vs_two_to_six_outputs$results_table %>%
+  rename(`Analysis`=analysis, `Risk with delayed initiation`=risk_delayed,
+         `Risk with immediate initiation`=risk_immediate, `Risk difference`=risk_difference, `Risk ratio`=risk_ratio) %>% tt()
+```
+
+Note: Censor weighted analysis refers to an analysis with weighting only to account for censoring due to LTFU. The fully weighted analysis uses weighting for censoring due to LTFU and for confounding of timing of treatment initiation.
+
+```{r}
+#| label: tbl-primary-results-28day
+#| tbl-cap: "Estimated risks of death by day 28 with immediate versus delayed anti-TB therapy treatment initiation"
+immediate_vs_two_to_six_outputs$results_table_day28 %>%
+  rename(`Analysis`=analysis, `Risk with delayed initiation`=risk_delayed,
+         `Risk with immediate initiation`=risk_immediate, `Risk difference`=risk_difference, `Risk ratio`=risk_ratio) %>% tt()
+```
+
+```{r}
+#| label: fig-mortality-by-treatment
+#| fig-cap: Risk of death by treatment strategy
+#| fig-width: 7
+#| fig-height: 5
+immediate_vs_two_to_six_outputs$survival_curve
+```
+
+## References
+
+::: {#refs}
+:::
