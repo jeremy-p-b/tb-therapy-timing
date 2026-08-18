@@ -6,3 +6,5 @@ formula_model_day2to6_factor <- "treatment_initiation ~ factor(day, levels=c(2:6
 
 formula_model_day1_norifresist <- "treatment_initiation ~ female + rcs(age, 3) + bac_load_grm + creat_log + hb_log + cd4_log + impaired_conscious + hypoxia"
 formula_model_day2to6_norifresist <- "treatment_initiation ~ poly(day, 3) + female + rcs(age, 3) + bac_load_grm + creat_log + hb_log + cd4_log + impaired_conscious + hypoxia"
+
+

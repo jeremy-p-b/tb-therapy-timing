@@ -187,7 +187,10 @@ return(res)
 }
 
 create_km_plot <- function(res, ylimit=40) {
+  day0 <- tibble_row(day=0, risk_delayed=0, risk_delayed_lb=0, risk_delayed_ub=0,
+                     risk_immediate=0, risk_immediate_lb=0, risk_immediate_ub=0)
   kmplot <- res %>%
+    bind_rows(day0) %>%
     select(day, starts_with("risk_immediate"), starts_with("risk_delayed")) %>%
     rename(risk_immediate_estimate=risk_immediate, risk_delayed_estimate=risk_delayed) %>%
     pivot_longer(starts_with("risk"), names_prefix="risk_", names_to="category", values_to="risk") %>%
@@ -195,13 +198,14 @@ create_km_plot <- function(res, ylimit=40) {
     pivot_wider(id_cols=c(day, Group), names_from=quantity, values_from=risk, names_glue="risk_{quantity}") %>%
     mutate(Group = if_else(Group == "immediate", "Immediate", "Delayed")) %>%
     mutate(across(starts_with("risk"), ~.x*100)) %>%
+    rename(`Treatment\nstrategy`=Group) %>%
     ggplot(aes(x=day, y=risk_estimate)) +
-    geom_step(aes(color=Group)) +
-    geom_stepribbon(aes(ymin = risk_lb, ymax=risk_ub, fill=Group), alpha = 0.2) +
+    geom_step(aes(color=`Treatment\nstrategy`)) +
+    geom_stepribbon(aes(ymin = risk_lb, ymax=risk_ub, fill=`Treatment\nstrategy`), alpha = 0.2) +
     scale_y_continuous(limits=c(0,ylimit), expand = expansion(mult = c(0, 0.05))) +
     scale_x_continuous(limits=c(0,83), expand = expansion(mult = c(0, 0.05))) +
     xlab("Day") +
-    ylab("Cumulative incidence (%)") +
+    ylab("Cumulative risk (%)") +
     theme_classic() +
     theme(
       axis.title = element_text(size=12),
@@ -276,7 +280,7 @@ pretty_print_res <- function(res) {
       select(-ends_with("_lb"), -ends_with("_ub"))
   } else {
     res %<>% 
-      mutate(across(matches("^(risk_immediate|risk_delayed|risk_difference|survival_immediate|survival_delayed)"), ~ scales::number(., accuracy=0.1))) %>%
+      mutate(across(matches("^(risk_immediate|risk_delayed|risk_difference|survival_immediate|survival_delayed)"), ~ scales::number(100*., accuracy=0.1))) %>%
       mutate(across(matches("^risk_ratio"), ~scales::number(., accuracy=0.01)))
   }
   res %<>% mutate(across(matches("se_log$"), ~scales::number(., accuracy=0.001))) 
@@ -293,13 +297,16 @@ plot_final_weights <- function(cohort_data_long) {
     geom_histogram(binwidth = 0.1) +
     theme_minimal() + 
     xlab("Weight") + 
-    ylab("Count") + 
-    ggtitle("Distribution of weights")
+    ylab("Count")
   return(final_weight_plot)
 }
 
 plot_max_weights <- function(res) {
-  max_weight_plot <- res %>% bind_rows() %>% filter(day==1 & analysis=="Fully weighted") %>% ggplot(aes(max_pweight)) + geom_histogram(binwidth=1)
+  max_weight_plot <- res %>% bind_rows() %>% filter(day==1 & analysis=="Fully weighted") %>% 
+    ggplot(aes(max_pweight)) + geom_histogram(binwidth=1) + 
+    theme_minimal() + 
+    xlab("Weight") + 
+    ylab("Count") 
   return(max_weight_plot)
 }
 
@@ -325,4 +332,26 @@ calculate_gee_risk_ratio <- function(cohort_data_long) {
     {geeglm(outcome ~ init_immediately, id=pid, family=poisson, data=., weights=.[["pweight"]])} %>% 
     tidy(conf.int=TRUE, exponentiate=TRUE)
   return(res)
+}
+
+
+create_risk_forest_plot <- function(res) {
+  res %<>%
+    mutate(mean=str_extract(risk_ratio, "([0-9.]+)"), lower=str_extract(risk_ratio, "(?<=\\()[0-9.]+"),
+           upper=str_extract(risk_ratio, "(?<=, )[0-9.]+")) %>%
+    mutate(across(starts_with("risk"), ~str_replace_all(.," \\(", "\\\n\\("))) %>%
+    mutate(across(c(mean, lower, upper), as.numeric)) %>%
+    rename(`Analysis`=analysis, `Risk delayed (%)`=risk_delayed, `Risk immediate (%)`=risk_immediate, `Risk difference (%)`=risk_difference,
+           `Risk ratio`=risk_ratio) 
+    
+    res %<>% select(`Analysis`, `Risk delayed (%)`, `Risk immediate (%)`, `Risk difference (%)`, `Risk ratio`, mean, lower, upper)
+    forest_rr <- res %>% forestplot(labeltext=c(`Analysis`, `Risk delayed (%)`, `Risk immediate (%)`, `Risk difference (%)`, `Risk ratio`), align=c("l", "l","l","l"),colgap=unit(3, "mm"), boxsize=0.1, xlog=TRUE, xticks=c(0.2, 1, 2), vertices=TRUE, clip=c(0.2, 2)) %>%
+      fp_add_header(`Analysis`="Analysis", `Risk delayed (%)` = "Risk\ndelayed - %\n(95% CI)",
+                    `Risk immediate (%)` = "Risk\nimmediate - %\n(95% CI)", `Risk difference (%)` = "Risk\ndifference - %\n(95% CI)", `Risk ratio` = "Risk\nratio")
+
+  forest_rr %<>%
+    fp_set_style(box="black", line="black", txt_gp=fpTxtGp(summary = gpar(fontfamily = "", cex = 0.7),
+                                                           label = gpar(fontfamily = "", cex = 0.7),ticks = gpar(fontfamily = "", cex = 0.8))) %>%
+    fp_set_zebra_style("#F5F9F9")
+  return(forest_rr)
 }
