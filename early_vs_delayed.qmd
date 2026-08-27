@@ -45,7 +45,7 @@ The outcome was all-cause death.
 
 ## Covariates
 
-Potential confounders were identified and adjusted for in analyses. These were ascertained from measurements made and samples taken at enrolment. Covariates included as potential confounders were age, sex, log creatinine, log CD4 count, log haemoglobin, impaired consciousness, hypoxia, rifampicin resistance, and pathogen load estimated using a graded response model.[@sossen2026measurement]
+Potential confounders were identified and adjusted for in analyses. These were ascertained from measurements made and samples taken at enrolment. Covariates included as potential confounders were age, sex, days since hospitalisation, log creatinine, log CD4 count, log haemoglobin, impaired consciousness, hypoxia, rifampicin resistance, and pathogen load estimated using a graded response model.[@sossen2026measurement]
 
 HIV viral load was included in descriptive statistics but was not adjusted for in analyses.
 
@@ -55,7 +55,7 @@ Follow-up was from enrolment until the earliest of death, loss to follow-up (LTF
 
 ## Causal contrasts
 
-The causal contrast was the observational analogue of the per-protocol effect.
+The causal contrast was the observational analogue of the per-protocol effect. Under the treatment strategies investigated, initiation of treatment was required but sustained use following initiation was not.
 
 ## Statistical methods
 
@@ -63,7 +63,7 @@ Descriptive statistics were estimated for each treatment strategy. These include
 
 Time was discretized in analyses into days. Risks of death at 84 days were estimated for each treatment strategy using weighted Kaplan-Meier estimators and compared using risk ratios and risk differences.[@hernan2018estimate] Nonparametric bootstrapping with 1,000 resamples was used to calculate 95% confidence intervals by the percentile method.
 
-Inverse probability weighting was used to account for censoring due to LTFU and for possible confounding due to common causes of delayed initiation and outcome. Censoring probabilities due to LTFU were estimated nonparametrically for each day among patients alive on that day using means estimated within levels of treatment initiated (yes/no), and for those who had initiated within levels of day of treatment initiation. Probabilities of immediate treatment initiation in day 1 were estimated using a logistic regression model. Hazards of treatment initiation for days 2-6 were estimated among patients alive and not LTFU using a pooled logistic regression model adjusted for baseline covariates. Age was modelled in these logistic regression models using a restricted cubic spline. Day was modelled in the pooled logistic regression model using a cubic polynomial. Weights were truncated at the 99th percentile.[@cole2008constructing]
+Inverse probability weighting was used to account for censoring due to LTFU and for possible confounding due to common causes of delayed initiation and outcome. Censoring probabilities due to LTFU were estimated nonparametrically for each day among patients alive on that day using means estimated within levels of treatment initiated (yes/no), and for those who had initiated within levels of day of treatment initiation. Probabilities of immediate treatment initiation in day 1 were estimated using a logistic regression model. Hazards of treatment initiation for days 2-6 were estimated among patients alive and not LTFU using a pooled logistic regression model adjusted for baseline covariates. Age was modelled in these logistic regression models using a restricted cubic spline. Days since hospitalisation was modelled using quadratic terms. Day was modelled in the pooled logistic regression model using a cubic polynomial. Weights were truncated at the 99th percentile.[@cole2008constructing]
 
 ## Secondary analysis
 
@@ -148,7 +148,7 @@ Individuals who had not initiated by day 6 were censored due to non-adherence to
 immediate_vs_two_to_six_outputs <- readRDS("output/immediate_vs_two_to_six_outputs.rds")
 ```
 
-After weighting, absolute standardised mean differences between those who followed a treatment strategy of immediate initiation relative to delayed initiation between 2 and 6 days following enrolment were small, and were all less than 0.1
+After weighting, absolute standardised mean differences between those who followed a treatment strategy of immediate initiation relative to delayed initiation between 2 and 6 days following enrolment were small, and were all 0.1 or less.
 
 ```{r}
 #| label: tbl-weighted-results
@@ -183,7 +183,7 @@ immediate_vs_two_to_six_outputs$max_weight_plot
 
 ## Risk of death with immediate initiation vs. delayed initation within 2-6 days
 
-The estimated risk of death by day 84 was 27.4% with delayed initiation and 17.9% with immediate initiation (RR 0.65, 95% CI 0.45, 0.95).
+The estimated risk of death by day 84 was 27.4% with delayed initiation and 17.9% with immediate initiation (RR 0.65, 95% CI 0.45, 0.96).
 
 ```{r}
 #| label: fig-primary-results
@@ -202,7 +202,6 @@ Note: Censor weighted analysis refers to an analysis with weighting only to acco
 #| fig-height: 2.5
 immediate_vs_two_to_six_outputs$results_day28
 ```
-
 
 ```{r}
 #| label: fig-mortality-by-treatment
@@ -257,7 +256,6 @@ In this naive approach, relative risks were attenuated towards the null, as migh
 secondary_analysis_outputs$survivors_estimates
 ```
 
-
 ```{r}
 #| label: fig-mortality-by-treatment-naive
 #| fig-cap: Weighted cumulative risk of death by treatment strategy using naive approach
@@ -277,7 +275,6 @@ A simple comparator strategy to immediate initiation is no immediate initiation.
 #| fig-height: 2.5
 secondary_analysis_outputs$not_immediate_estimates
 ```
-
 
 # Sensitivity analyses
 
@@ -324,6 +321,18 @@ Different weights can be applied during the grace period corresponding to differ
 #| fig-width: 6
 #| fig-height: 2.5
 sensitivity_analysis_outputs$uniform_results
+```
+
+## Restricting to those enrolled by two days after day of hospitalisation
+
+Patients were enrolled in the study within 0-5 days from the day of hospitalisation. As a sensitivity analysis, we restricted to those enrolled by two days after hospitalisation. Estimated risks and risk ratios were similar to the primary analysis but with wider confidence intervals.
+
+```{r}
+#| label: fig-admission
+#| fig-cap:  "Estimated risks of death by day 84 with immediate versus delayed initiation restricted to those enrolled by 2 days after hospitalisation"
+#| fig-width: 6
+#| fig-height: 2.5
+sensitivity_analysis_outputs$dayadm_res
 ```
 
 # References

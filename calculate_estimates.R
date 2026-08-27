@@ -18,7 +18,7 @@ source("scripts/formulas.R")
 descriptive_outputs <- list()
 
 # Read in data
-tb_cohort <- read_csv(glue("{DATA_DIR}/patient2.csv"))
+tb_cohort <- read_csv(glue("{DATA_DIR}/patient3.csv"))
 
 # Inspect code
 tb_cohort %>% select(!pid) %>% skim() %>% print()
@@ -56,6 +56,7 @@ tb_cohort %<>%
 var_label(tb_cohort) <- list(
   pid = "Patient ID",
   futime = "Follow-up time",
+  days_from_adm = "Days from hospital admission",
   event = "Outcome",
   baseline_on_rx = "Baseline on TB RX",
   init_day="Day of treatment initiation",
@@ -100,7 +101,7 @@ descriptive_outputs$survival_plot <- survfit2(Surv(futime, event) ~ 1, data = tb
 # Characteristics of those who do and do not initate immediate
 descriptive_outputs$baseline_characteristics <- tb_cohort %>% 
   mutate(pretty_init_immediately= if_else(init_immediately==1, "Immediate initiation", "Not immediate initiation")) %>%
-  tbl_summary(by=pretty_init_immediately, include=c(female, age, hiv_vl_suppressed, cd4_log, hb_log, creat_log, rifresist, bac_load_grm,   impaired_conscious, hypoxia)) %>% 
+  tbl_summary(by=pretty_init_immediately, include=c(female, age, days_from_adm, hiv_vl_suppressed, cd4_log, hb_log, creat_log, rifresist, bac_load_grm,   impaired_conscious, hypoxia)) %>% 
   add_difference(everything() ~ "smd") %>% 
   remove_abbreviation() %>%
   modify_column_hide(conf.low) 
@@ -243,10 +244,10 @@ secondary_analysis_outputs$grm_estimates <- bind_rows(grmabove0_processed_res %>
 
 secondary_analysis_outputs$grm_survival_curve <- plot_grid(
  grmabove0_processed_res %>% 
-  filter(analysis=="Fully weighted") %>% create_km_plot(50)
+  filter(analysis=="Fully weighted") %>% create_km_plot(55)
 ,
 grm0orless_processed_res %>% 
-  filter(analysis=="Fully weighted") %>% create_km_plot(50)
+  filter(analysis=="Fully weighted") %>% create_km_plot(55)
 , ncol=2, labels=c("A", "B")) 
 
 
@@ -254,7 +255,7 @@ grm0orless_processed_res %>%
 
 TRUNCATE_PERCENTILE <- 0.99
 
-tb_cohort_survivors <- tb_cohort %>% filter(!is.na(init_day) & init_day <= 6)
+tb_cohort_survivors <- tb_cohort %>% filter(!is.na(init_day) & init_day <= 6) 
 
 # Estimate risks
 tb_cohort_survivors_long <- create_long_data(tb_cohort_survivors)
@@ -264,7 +265,7 @@ tb_cohort_survivors_long %>%  filter(pweight > 0) %>%
   calculate_weighted_risks_combined() %>% 
   calculate_risk_comparisons() %>% 
   pretty_print_res()  %>% 
-  filter(day == 83)
+  filter(day == 17)
 tb_cohort_survivors_long %>% create_weighted_table()
 tb_cohort_survivors_long %>% calculate_gee_risk_ratio()
 
@@ -331,7 +332,7 @@ TRUNCATE_PERCENTILE <- 0.99
 tb_cohort_without_resistance <- tb_cohort %>% filter(rifresist==0)
 
 clust <- makeCluster(5)
-clusterSetRNGStream(clust, 389)
+clusterSetRNGStream(clust, 438)
 clusterCall(clust, load_globals_and_helpers)
 res <- pblapply(1:1000, sample_compute_weighted_risks, cohort_data=tb_cohort_without_resistance, weight_function=calculate_weights_immediate_vs_delayed, formula_day1=formula_model_day1_norifresist, 
                 formula_day2to6=formula_model_day2to6_norifresist, truncate_percentile=TRUNCATE_PERCENTILE, cl=clust)
@@ -356,11 +357,31 @@ uniform_processed_res <- res %>% summarise_boot_weighted(cohort_data=tb_cohort, 
 sensitivity_analysis_outputs$uniform_results <- uniform_processed_res %>% filter(day==83 & analysis != "Censor weighted") %>% pretty_print_res() %>% select(analysis, risk_delayed, risk_immediate, risk_difference, risk_ratio) %>% create_risk_forest_plot()
 
 
+
+# Sensitivity analysis - within two days of admission ---------------------------------------------------------
+
+TRUNCATE_PERCENTILE <- 0.99
+
+tb_cohort_dayadm <- tb_cohort %>% filter(days_from_adm <=2)
+
+clust <- makeCluster(5)
+clusterSetRNGStream(clust, 238)
+clusterCall(clust, load_globals_and_helpers)
+res <- pblapply(1:1000, sample_compute_weighted_risks, cohort_data=tb_cohort_dayadm, weight_function=calculate_weights_immediate_vs_delayed, formula_day1=formula_model_day1_noadm, 
+                formula_day2to6=formula_model_day2to6_noadm, truncate_percentile=TRUNCATE_PERCENTILE, cl=clust)
+stopCluster(clust)
+dayadm_res <- res %>% summarise_boot_weighted(cohort_data=tb_cohort_dayadm, weight_function=calculate_weights_immediate_vs_delayed, formula_day1=formula_model_day1_noadm,
+                                                                    formula_day2to6 = formula_model_day2to6_noadm, truncate_percentile=TRUNCATE_PERCENTILE) 
+sensitivity_analysis_outputs$dayadm_res <- dayadm_res %>% filter(day==83 & analysis != "Censor weighted") %>% pretty_print_res() %>% select(analysis, risk_delayed, risk_immediate, risk_difference, risk_ratio) %>% create_risk_forest_plot()
+
+
 saveRDS(sensitivity_analysis_outputs, "output/sensitivity_analysis_outputs.rds")
+
+
 
 # Render qmd ----------------------------------------------------------------------------------
 
-quarto::quarto_render("early_vs_delayed.qmd")
+quarto::quarto_render(glue("early_vs_delayed.qmd"))
 
 
 

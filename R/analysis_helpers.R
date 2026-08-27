@@ -318,7 +318,7 @@ create_weighted_table <- function(cohort_data_long) {
       data = cohort_data_long %>% filter(pweight > 0 & censor==0 & prior_censor==0 & day == 83),
     )
   weighted_table <- svy_obj %>%
-    tbl_svysummary(by=pretty_init_immediately, include=c(female, age, hiv_vl_suppressed, cd4_log, hb_log, creat_log, rifresist, bac_load_grm, impaired_conscious, hypoxia)) %>% 
+    tbl_svysummary(by=pretty_init_immediately, include=c(female, age, days_from_adm, hiv_vl_suppressed, cd4_log, hb_log, creat_log, rifresist, bac_load_grm, impaired_conscious, hypoxia)) %>% 
     add_difference(everything() ~ "smd") %>% 
     remove_abbreviation() %>%
     modify_column_hide(conf.low) 
