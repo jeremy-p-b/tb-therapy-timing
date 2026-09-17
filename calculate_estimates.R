@@ -1,7 +1,7 @@
 # Set globals ---------------------------------------------------------------------------------
 
-# Define data dictionary
-DATA_DIR <- "/Users/k2587030/Library/CloudStorage/OneDrive-King\'sCollegeLondon/Data/TB"
+DATA_DIR <- Sys.getenv("TB_DATA_DIR")
+if (DATA_DIR == "") stop("Set TB_DATA_DIR in .Renviron")
 
 # Load libraries and helper functions
 load_globals_and_helpers <- function() {
@@ -109,7 +109,6 @@ descriptive_outputs$baseline_characteristics <- tb_cohort %>%
 # Crude event counts among those not censored
 descriptive_outputs$crude_counts <- tb_cohort %>% 
   mutate(pretty_init_immediately= if_else(init_immediately==1, "Immediate initiation", "Not immediate initiation")) %>%
-  filter(ltfu == 0) %>%
   group_by(pretty_init_immediately) %>%
   summarise(N = n(), Deaths=sum(event)) %>%
   rename(`Treatment initiation`=pretty_init_immediately) %>%
@@ -265,7 +264,7 @@ tb_cohort_survivors_long %>%  filter(pweight > 0) %>%
   calculate_weighted_risks_combined() %>% 
   calculate_risk_comparisons() %>% 
   pretty_print_res()  %>% 
-  filter(day == 17)
+  filter(day == 83)
 tb_cohort_survivors_long %>% create_weighted_table()
 tb_cohort_survivors_long %>% calculate_gee_risk_ratio()
 
@@ -307,18 +306,22 @@ sensitivity_analysis_outputs <- list()
 
 immediate_vs_two_to_six_processed_res_truncated <- list()
 
-for (TRUNCATE_PERCENTILE in c(0.99, 0.95, 0.90)) {
+for (TRUNCATE_PERCENTILE in c(1, 0.99, 0.95, 0.90)) {
   clust <- makeCluster(5)
   clusterSetRNGStream(clust, 123)
   clusterCall(clust, load_globals_and_helpers)
+  TRUNCATE_PERCENTILE_LBL <- TRUNCATE_PERCENTILE
+  if (TRUNCATE_PERCENTILE==1) {
+    TRUNCATE_PERCENTILE <- NULL
+  } 
   res <- pblapply(1:1000, sample_compute_weighted_risks, cohort_data=tb_cohort, weight_function=calculate_weights_immediate_vs_delayed, formula_day1=formula_model_day1, 
                   formula_day2to6=formula_model_day2to6, truncate_percentile=TRUNCATE_PERCENTILE, cl=clust)
   stopCluster(clust)
-  immediate_vs_two_to_six_processed_res_truncated[[glue(TRUNCATE_PERCENTILE)]] <- res %>% summarise_boot_weighted(cohort_data=tb_cohort, weight_function=calculate_weights_immediate_vs_delayed, formula_day1=formula_model_day1,
+  immediate_vs_two_to_six_processed_res_truncated[[glue(TRUNCATE_PERCENTILE_LBL)]] <- res %>% summarise_boot_weighted(cohort_data=tb_cohort, weight_function=calculate_weights_immediate_vs_delayed, formula_day1=formula_model_day1,
                                                                                                                   formula_day2to6 = formula_model_day2to6, truncate_percentile=TRUNCATE_PERCENTILE) 
 }
 
-sensitivity_analysis_outputs$truncation_results <- bind_rows(immediate_vs_two_to_six_processed_res %>% mutate(analysis_type = "Immediate vs. 2-6 day delay - no truncation"), 
+sensitivity_analysis_outputs$truncation_results <- bind_rows(immediate_vs_two_to_six_processed_res_truncated[[glue(1)]] %>% mutate(analysis_type = "Immediate vs. 2-6 day delay - no truncation"), 
           immediate_vs_two_to_six_processed_res_truncated[[glue(0.99)]] %>% mutate(analysis_type="Immediate vs. 2-6 day delay - weights truncated at 99th percentile"),
           immediate_vs_two_to_six_processed_res_truncated[[glue(0.95)]] %>% mutate(analysis_type="Immediate vs. 2-6 day delay - weights truncated at 95th percentile"),
           immediate_vs_two_to_six_processed_res_truncated[[glue(0.90)]] %>% mutate(analysis_type="Immediate vs. 2-6 day delay - weights truncated at 90th percentile")) %>% 
@@ -353,10 +356,8 @@ res <- pblapply(1:1000, sample_compute_weighted_risks, cohort_data=tb_cohort, we
                 formula_day2to6=formula_model_day2to6, truncate_percentile=TRUNCATE_PERCENTILE, cl=clust)
 stopCluster(clust)
 uniform_processed_res <- res %>% summarise_boot_weighted(cohort_data=tb_cohort, weight_function=calculate_weights_immediate_vs_delayed_uniform, formula_day1=formula_model_day1,
-                                                                    formula_day2to6 = formula_model_day2to6_norifresist, truncate_percentile=TRUNCATE_PERCENTILE) 
+                                                                    formula_day2to6 = formula_model_day2to6, truncate_percentile=TRUNCATE_PERCENTILE) 
 sensitivity_analysis_outputs$uniform_results <- uniform_processed_res %>% filter(day==83 & analysis != "Censor weighted") %>% pretty_print_res() %>% select(analysis, risk_delayed, risk_immediate, risk_difference, risk_ratio) %>% create_risk_forest_plot()
-
-
 
 # Sensitivity analysis - within two days of admission ---------------------------------------------------------
 
@@ -381,7 +382,7 @@ saveRDS(sensitivity_analysis_outputs, "output/sensitivity_analysis_outputs.rds")
 
 # Render qmd ----------------------------------------------------------------------------------
 
-quarto::quarto_render(glue("early_vs_delayed.qmd"))
+quarto::quarto_render(glue("immediate_vs_delayed.qmd"), output_file=glue("immediate_vs_delayed{get_formatted_date()}.pdf"))
 
 
 

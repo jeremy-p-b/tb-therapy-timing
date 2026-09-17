@@ -1,5 +1,5 @@
 ---
-title: "Early vs delayed initiation of anti-TB therapy among patients hospitalised with HIV and suspected TB"
+title: "Immediate vs delayed initiation of anti-TB therapy among patients hospitalised with HIV and suspected TB"
 format:
   pdf:
     fontsize: 10pt
@@ -29,7 +29,7 @@ In patients hospitalised with HIV and suspected TB there is uncertainty around t
 
 ## Data
 
-Data were analysed from a cohort of adults with a new suspected diagnosis of HIV-associated tuberculosis prospectively recruited between 2014 and 2016 from a hospital in Cape Town in South Africa. Further details of this cohort are provided in Schutz et al. PLoS medicine. 2019.[@schutz2019clinical]
+Data were analysed from a cohort of adults with a new suspected diagnosis of HIV-associated tuberculosis prospectively recruited between 2014 and 2016 from a hospital in Cape Town in South Africa. Further details of this cohort are provided in *Schutz et al. PLOS medicine. 2019*.[@schutz2019clinical]
 
 ## Inclusion criteria
 
@@ -37,7 +37,7 @@ In addition to the inclusion criteria that were applied for recruitment, additio
 
 ## Treatment strategies
 
-The treatment strategies under comparison were immediate initiation of anti-TB therapy on day 1 vs. delayed initiation within a grace period from 2 to 6 days following enrolment. Individuals were censored when non-adherent to the specified strategy (i.e., for the treatment strategy of delayed initiation at day 1 if treatment initiated on day 1, and at day 6 if therapy not initiated by that date).
+The treatment strategies under comparison were immediate initiation of anti-TB therapy on day 1 vs. delayed initiation within a grace period from 2 to 6 days following enrolment. Individuals were censored when non-adherent to the specified strategy (i.e., for the treatment strategy of delayed initiation at day 1 if anti-TB therapy was initiated on day 1, and at day 6 if therapy not initiated by that date).
 
 ## Outcome
 
@@ -45,7 +45,7 @@ The outcome was all-cause death.
 
 ## Covariates
 
-Potential confounders were identified and adjusted for in analyses. These were ascertained from measurements made and samples taken at enrolment. Covariates included as potential confounders were age, sex, days since hospitalisation, log creatinine, log CD4 count, log haemoglobin, impaired consciousness, hypoxia, rifampicin resistance, and pathogen load estimated using a graded response model.[@sossen2026measurement]
+Potential confounders were included and adjusted for in analyses. These were ascertained from measurements made and samples taken at enrolment. Covariates included as potential confounders were age, sex, days since hospitalisation, log creatinine, log CD4 count, log haemoglobin, impaired consciousness, hypoxia, rifampicin resistance, and pathogen load estimated using a graded response model.[@sossen2026measurement]
 
 HIV viral load was included in descriptive statistics but was not adjusted for in analyses.
 
@@ -61,15 +61,15 @@ The causal contrast was the observational analogue of the per-protocol effect. U
 
 Descriptive statistics were estimated for each treatment strategy. These included proportions for categorical covariates and medians with interquartile ranges for continuous covariates. Absolute standardised mean differences were used to quantify differences in covariates between treatment strategies.
 
-Time was discretized in analyses into days. Risks of death at 84 days were estimated for each treatment strategy using weighted Kaplan-Meier estimators and compared using risk ratios and risk differences.[@hernan2018estimate] Nonparametric bootstrapping with 1,000 resamples was used to calculate 95% confidence intervals by the percentile method.
+Time was discretised in analyses into days. Risk of death at 84 days was estimated for each treatment strategy using weighted Kaplan-Meier estimators and compared using risk ratios and risk differences.[@hernan2018estimate] Nonparametric bootstrapping with 1,000 resamples was used to calculate 95% confidence intervals by the percentile method.
 
-Inverse probability weighting was used to account for censoring due to LTFU and for possible confounding due to common causes of delayed initiation and outcome. Censoring probabilities due to LTFU were estimated nonparametrically for each day among patients alive on that day using means estimated within levels of treatment initiated (yes/no), and for those who had initiated within levels of day of treatment initiation. Probabilities of immediate treatment initiation in day 1 were estimated using a logistic regression model. Hazards of treatment initiation for days 2-6 were estimated among patients alive and not LTFU using a pooled logistic regression model adjusted for baseline covariates. Age was modelled in these logistic regression models using a restricted cubic spline. Days since hospitalisation was modelled using quadratic terms. Day was modelled in the pooled logistic regression model using a cubic polynomial. Weights were truncated at the 99th percentile.[@cole2008constructing]
+Inverse probability weighting was used to account for censoring due to LTFU and for possible confounding due to common causes of delayed initiation and outcome. Censoring probabilities due to LTFU were estimated nonparametrically for each day among patients alive on that day using means estimated within levels of treatment initiated (yes/no) and for those who had initiated within levels of day of treatment initiation. Probabilities of immediate treatment initiation on day 1 were estimated using a logistic regression model adjusting for baseline covariates. Hazards of treatment initiation for days 2-6 were estimated among patients alive and not LTFU using a pooled logistic regression model adjusted for baseline covariates. Age was modelled in these logistic regression models using a restricted cubic spline. Days since hospitalisation was modelled using quadratic terms. Day was modelled in the pooled logistic regression model using a cubic polynomial. Weights were truncated at the 99th percentile.[@cole2008constructing]
 
-## Secondary analysis
+## Secondary analyses
 
 First, as a secondary analysis, risks were estimated within categories of estimated pathogen load. Pathogen load was categorised based on a graded response model into higher (\>0) and lower (\<=0) load.
 
-Second, a naive approach was estimated, vulnerable to immortal time bias, where the analysis was restricted to individuals who initiated treatment within 6 days. To initiate treatment after enrolment (e.g., at six days) an individual has to survive until treatment receipt. Hence, requiring receipt of treatment can lead to bias in which estimates are biased towards reduced mortality with delayed treatment initiation.
+Second, a naive analysis was conducted, vulnerable to immortal time bias, where the cohort is restricted to individuals who initiated treatment within 6 days. To initiate treatment after enrolment (e.g., at day 6) an individual has to survive until treatment receipt. Hence, requiring receipt of treatment can lead to bias in which estimates are biased towards reduced mortality with delayed treatment initiation.
 
 Third, risks were estimated comparing a treatment strategy of immediate initiation vs. no immediate initiation (i.e., with no requirement for subsequent initiation within a grace period).
 
@@ -77,7 +77,7 @@ Third, risks were estimated comparing a treatment strategy of immediate initiati
 
 In sensitivity analyses, to assess the robustness of results to extreme weights, weights were not truncated or were truncated at the 90th or 95th percentile.
 
-To assess the robustness of results to inclusion of individuals with antibiotic resistant TB, in a sensitivity analysis individuals with rifampicin resistance were excluded.
+To assess the robustness of results to inclusion of individuals with antibiotic resistant TB, in a sensitivity analysis, individuals with rifampicin resistance were excluded.
 
 Different weights can be used for grace period treatment strategies to imply different distributions of treatment during the grace period. The primary analysis used a natural grace period treatment strategy. As a sensitivity analysis, we estimated the effect of delayed initiation under a uniform distribution of treatment initiation within the grace period.[@cain2010start; @wanis2024grace]
 
@@ -94,12 +94,15 @@ From a total of 482 patients with confirmed TB, 64 exclusions were made due to t
 ```{r}
 #| label: tbl-exclusions
 #| tbl-cap: "Exclusions"
-descriptive_outputs$inclusions %>% gt() %>% tab_options(
+descriptive_outputs$inclusions %>% 
+  mutate(`Inclusion criteria`=str_replace_all(`Inclusion criteria`, "No baseline RX", "Not receiving anti-TB therapy at enrolment")) %>%
+  mutate(`Inclusion criteria`=str_replace_all(`Inclusion criteria`, "enrollment", "enrolment")) %>%
+  gt() %>% tab_options(
     table.font.size = px(12)
   )
 ```
 
-Among the remaining 418 patients, 7 were lost to follow-up was `r descriptive_outputs$number_ltfu`.
+Among the remaining 418 patients, the number lost to follow-up was `r descriptive_outputs$number_ltfu`.
 
 ## Time to anti-TB therapy initiation
 
@@ -128,25 +131,13 @@ descriptive_outputs$baseline_characteristics %>%
   )
 ```
 
-# Primary analysis
-
-Of 418 included individuals, 227 initiated anti-TB therapy on day 1 and 189 did not.
-
-```{r}
-#| label: tbl-counts 
-#| tbl-cap: "Crude death counts by treatment initiation"
-descriptive_outputs$crude_counts %>% gt() %>% tab_options(
-    table.font.size = px(12)
-  )
-```
-
-Individuals who had not initiated by day 6 were censored due to non-adherence to either treatment strategy.
-
 ## Weighted characteristics
 
 ```{r, echo=FALSE}
 immediate_vs_two_to_six_outputs <- readRDS("output/immediate_vs_two_to_six_outputs.rds")
 ```
+
+To estimate the effect of the two treatment strategies, immediate vs. delayed initiation of anti-TB therapy, individuals were artificially censored when non-adherent to the assigned treatment strategy and weights were used to account for censoring.
 
 After weighting, absolute standardised mean differences between those who followed a treatment strategy of immediate initiation relative to delayed initiation between 2 and 6 days following enrolment were small, and were all 0.1 or less.
 
@@ -171,17 +162,29 @@ The maximum of the truncated weights was less than 5.
 immediate_vs_two_to_six_outputs$plot_weights
 ```
 
-In bootstrap resampling, used to calculate confidence intervals, the maximum of the weights for any bootstrap sample was less than 15.
+In bootstrap resampling, used to calculate confidence intervals, the maximum of the truncated weights for any bootstrap sample was less than 15.
 
 ```{r}
-#| label: max-weights
+#| label: fig-max-weights
 #| fig-cap: "Histogram of the maximum weight at day 84 for each bootstrap sample"
 #| fig-width: 5
 #| fig-height: 3
 immediate_vs_two_to_six_outputs$max_weight_plot
 ```
 
-## Risk of death with immediate initiation vs. delayed initation within 2-6 days
+# Primary analysis
+
+Among 418 included individuals, there were 90 deaths.
+
+```{r}
+#| label: tbl-counts 
+#| tbl-cap: "Crude death counts by treatment initiation"
+descriptive_outputs$crude_counts %>% gt() %>% tab_options(
+    table.font.size = px(12)
+  )
+```
+
+## Risk of death with immediate initiation vs. delayed initiation within 2-6 days
 
 The estimated risk of death by day 84 was 27.4% with delayed initiation and 17.9% with immediate initiation (RR 0.65, 95% CI 0.45, 0.96).
 
@@ -219,7 +222,7 @@ secondary_analysis_outputs <- readRDS("output/secondary_analysis_outputs.rds")
 
 ## Differences in effect estimates by pathogen load
 
-Of 418 patients, 207 (49.5%) has a bacterial load GRM score greater than 0 indicating higher pathogen load. Of those with a bacterial load GRM score above 0, 126 (60.9%) initiated immediately. Whereas of those with a bacterial load GRM score less than or equal to 0, 101 (47.9%) initiated immediately. The estimated risk difference was larger among individuals with a bacterial load GRM greater than 0 than those with values less than or equal 0.
+Of 418 patients, 207 (49.5%) had a bacterial load GRM score greater than 0 indicating higher pathogen load. Of those with a bacterial load GRM score above 0, 126 (60.9%) initiated immediately. Whereas of those with a bacterial load GRM score less than or equal to 0, 101 (47.9%) initiated immediately. The absolute risk difference was larger among individuals with a bacterial load GRM greater than 0 than those with values less than or equal 0.
 
 ```{r}
 #| label: tbl-grm-results
@@ -244,7 +247,7 @@ secondary_analysis_outputs$grm_survival_curve
 
 ## Comparison to a naive approach
 
-Rather than censor individuals when non-adherent to the specified regime, a naive approach would restrict to individuals who initiated therapy within days 1-6. This approach is susceptible to immortal time bias as those who delayed therapy initiation must necessarily have survived until the day of therapy initiation.
+Rather than censor individuals when non-adherent to the specified regime, a naive approach would restrict to individuals who initiated therapy within days 1-6. This approach is susceptible to immortal time bias as those with delayed therapy initiation must necessarily have survived until the day of therapy initiation.
 
 In this naive approach, relative risks were attenuated towards the null, as might be anticipated due to immortal time bias.
 
@@ -273,7 +276,7 @@ A simple comparator strategy to immediate initiation is no immediate initiation.
 #| fig-cap:  "Estimated risks of death by day 84 with immediate versus no immediate anti-TB therapy"
 #| fig-width: 6
 #| fig-height: 2.5
-secondary_analysis_outputs$not_immediate_estimates
+secondary_analysis_outputs$not_immediate_estimates 
 ```
 
 # Sensitivity analyses
@@ -284,10 +287,10 @@ sensitivity_analysis_outputs <- readRDS("output/sensitivity_analysis_outputs.rds
 
 ## Weight truncation
 
-Progressive truncation of the weights used in the primary analysis from no truncation to truncation at the 90th percentile did not result in substantive differences in effect estimates.
+Progressive truncation of the weights used in the primary analysis, from no truncation to truncation at the 90th percentile, did not result in substantive differences in effect estimates.
 
 ```{r}
-#| label: tbl-survivor-no-immediate
+#| label: tbl-wt_truncation
 #| tbl-cap: "Estimated risks of death by day 84 with immediate versus delayed anti-TB therapy with weight truncation"
 sensitivity_analysis_outputs$truncation_results %>%
   rename(`Analysis type`=analysis_type, `Analysis`=analysis, `Risk with delayed initiation`=risk_delayed,
@@ -301,7 +304,7 @@ sensitivity_analysis_outputs$truncation_results %>%
 
 ## Excluding those with rifampicin resistance
 
-Rifampicin resistance may be both a confounder and an effect modifier for the effect of early vs. delayed therapy initiation. In a sensitivity analysis restricting to the 371 of 418 (88.8%) without rifampicin-resistant TB, relative risk estimates were compatible with the primary analysis though slightly smaller and with wider confidence intervals.
+Rifampicin resistance may be both a confounder and an effect modifier for the effect of early vs. delayed therapy initiation. In a sensitivity analysis restricting to the 371 of 418 (88.8%) without rifampicin-resistant TB, relative risk estimates were compatible with the primary analysis though slightly closer to the null and with wider confidence intervals.
 
 ```{r}
 #| label: fig-no-rifampicin
@@ -313,7 +316,7 @@ sensitivity_analysis_outputs$no_resistance_results
 
 ## Uniform grace period regime
 
-Different weights can be applied during the grace period corresponding to different interventional distributions of treatment in the grace period. The treatment strategy of delayed initiation was a natural grace period regime as the interventional probability of therapy initiation within the interval was the natural (i.e., observed) probability of therapy initiation. As a sensitivity analysis, an alternative approach was used specify a specific distribution of therapy initiation during the grace period (i.e., days 2 to 6), in which a uniform distribution of therapy initiation was specified. Estimated risks and risk ratios were similar to the primary analysis.
+Different weights can be applied during the grace period corresponding to different interventional distributions of treatment in the grace period. The treatment strategy of delayed initiation was a natural grace period regime as the interventional probability of therapy initiation within the interval was the natural (i.e., observed) probability of therapy initiation. As a sensitivity analysis, an alternative approach was used to specify a specific distribution of therapy initiation during the grace period (i.e., days 2 to 6), in which a uniform distribution of therapy initiation was specified. Estimated risks and risk ratios were similar to the primary analysis.
 
 ```{r}
 #| label: fig-uniform
@@ -323,13 +326,13 @@ Different weights can be applied during the grace period corresponding to differ
 sensitivity_analysis_outputs$uniform_results
 ```
 
-## Restricting to those enrolled by two days after day of hospitalisation
+## Restricting to those enrolled within two days after day of hospitalisation
 
-Patients were enrolled in the study within 0-5 days from the day of hospitalisation. As a sensitivity analysis, we restricted to those enrolled by two days after hospitalisation. Estimated risks and risk ratios were similar to the primary analysis but with wider confidence intervals.
+Patients were enrolled in the study within 0-5 days from the day of hospitalisation. As a sensitivity analysis, we restricted to those enrolled within two days after hospitalisation. Estimated risks and risk ratios were similar to the primary analysis but with wider confidence intervals.
 
 ```{r}
 #| label: fig-admission
-#| fig-cap:  "Estimated risks of death by day 84 with immediate versus delayed initiation restricted to those enrolled by 2 days after hospitalisation"
+#| fig-cap:  "Estimated risks of death by day 84 with immediate versus delayed initiation restricted to those enrolled within 2 days after hospitalisation"
 #| fig-width: 6
 #| fig-height: 2.5
 sensitivity_analysis_outputs$dayadm_res

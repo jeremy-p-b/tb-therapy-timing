@@ -5,3 +5,5 @@
 .DS_Store
 .quarto
 *.Rproj
+load_paths.R
+.Renviron
